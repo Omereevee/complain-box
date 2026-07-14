@@ -4,10 +4,13 @@ from selenium import webdriver
 from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-
+import os
 # ---- creates driver ---- #
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_experimental_option("detach", True)
+user_data_dir = os.path.join(os.getcwd(),"chrome_profile")
+
+chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
 driver = webdriver.Chrome(options=chrome_options)
 
@@ -37,34 +40,35 @@ class InternetSpeedYBot:
 
             print("got go ")
         go.click()
-        print("done")
+
         time.sleep(60)
+        print("done")
 
         self.down = self.driver.find_element(By.CLASS_NAME,"download-speed").text
         self.up= self.driver.find_element(By.CLASS_NAME,"upload-speed").text
+        if self.up and self.down:
+            print(self.up)
+            print(self.down)
 
-        print(self.up)
-        print(self.down)
-
-        if int(self.up) > PROMISED_UP or  int(self.down) > PROMISED_DOWN:
+        if float(self.up) <PROMISED_UP or  float(self.down) < PROMISED_DOWN:
             self.tweet_at_provider()
 
     def tweet_at_provider(self):
         self.driver.get(Y_LOGIN_URL)
 
-        self.y_email = self.driver.find_element(By.ID,"email")
-        self.y_password = self.driver.find_element(By.ID,"password")
-        self.y_login_button = self.driver.find_element(By.CLASS_NAME,"y-login-submit")
+        y_email = self.driver.find_element(By.ID,"email")
+        y_password = self.driver.find_element(By.ID,"password")
+        y_login_button = self.driver.find_element(By.CLASS_NAME,"y-login-submit")
 
-        self.y_email.send_keys(Y_EMAIL)
-        self.y_password.send_keys(Y_PASSWORD)
-        self.y_login_button.click()
+        y_email.send_keys(Y_EMAIL)
+        y_password.send_keys(Y_PASSWORD)
+        y_login_button.click()
 
-        self.y_tweet = self.driver.find_element(By.CLASS_NAME,"x-compose")
-        self.y_send = self.driver.find_element(By.ID,"post-btn")
+        y_tweet = self.driver.find_element(By.CLASS_NAME,"x-compose")
+        y_send = self.driver.find_element(By.ID,"post-btn")
 
-        self.y_tweet.send_keys(f"why is my internet speed {self.up} up/{self.down} down when i pay for {PROMISED_UP} up/{PROMISED_DOWN} down")
-        self.y_send.click()
+        y_tweet.send_keys(f"why is my internet speed {self.up} up/{self.down} down when i pay for {PROMISED_UP} up/{PROMISED_DOWN} down")
+        y_send.click()
 
 
 # ---- Execution ---- #
